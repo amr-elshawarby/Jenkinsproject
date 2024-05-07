@@ -23,29 +23,29 @@ pipeline {
                 echo 'Deploying....'
             }
         }
-        
-        stage('Archive') {
-            when {
-                allOf {
-                    previousBuild().result == 'SUCCESS'
-                    currentBuild.result == 'SUCCESS'
-                }
-            }
-            steps {
-                archiveArtifacts artifacts: 'amr.txt', allowEmptyArchive: true
-            }
-        }
     }
     
     post {
-        always {
-            emailext (
-                to: 'amm@example.com',
-                subject: "Build ${currentBuild.fullDisplayName} ${currentBuild.result}",
-                body: "Build ${currentBuild.fullDisplayName} finished with result: ${currentBuild.result}. Artifacts have been archived successfully."
-            )
+        success {
+            script {
+                if (currentBuild.result == 'SUCCESS') {
+                    echo 'Archiving....'
+                    archiveArtifacts artifacts: 'amr.txt', allowEmptyArchive: true
+                    emailext (
+                        to: 'amm@example.com',
+                        subject: "Build ${currentBuild.fullDisplayName} ${currentBuild.result}",
+                        body: "Build ${currentBuild.fullDisplayName} finished with result: ${currentBuild.result}. Artifacts have been archived successfully."
+                    )
+                } else {
+                    emailext (
+                        to: 'amm@example.com',
+                        subject: "Build ${currentBuild.fullDisplayName} ${currentBuild.result}",
+                        body: "Build ${currentBuild.fullDisplayName} finished with result: ${currentBuild.result}."
+                    )
+                }
+            }
         }
-        unstable {
+        always {
             emailext (
                 to: 'amm@example.com',
                 subject: "Build ${currentBuild.fullDisplayName} ${currentBuild.result}",
