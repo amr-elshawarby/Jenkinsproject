@@ -1,56 +1,59 @@
+
+
 pipeline {
     agent any
 
     stages {
-        stage('Build') {
-            steps {
-                echo 'Building..'
-                
-            }
-        }
-        stage('Test') {
-            steps {
-                script {
-                    try {
-                        echo 'Testing..'
-                        sh 'exit 0' 
-                    } catch (Exception e) {
-                        ansiColor('red') {
-                            echo "Test failed"
-                            currentBuild.result = 'UNSTABLE'
-                            error "Test failed"
-                        }
+        stage('Build and Test') {
+            parallel {
+                stage('Build') {
+                    steps {
+                        echo 'Building..'
+                        writeFile file: 'amr.txt', text: 'hello amr'
+                        
                     }
                 }
+                stage('Test') {
+                    steps {
+                        echo 'Testing..'
+                        
+                    }
+                }
+            }
+        }
+        stage('Archive') {
+            when {
+                expression {
+                    currentBuild.result == 'SUCCESS'
+                }
+            }
+            steps {
+                archiveArtifacts artifacts: 'hello.txt', allowEmptyArchive: true
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying....'
+                
             }
         }
     }
     
     post {
-        success {
-            script {
-                emailext (
-                    to: 'email@example.com',
-                    subject: "Pipeline Successful: ${env.JOB_NAME} ${env.BUILD_NUMBER}",
-                    body: "Congratulations! Your pipeline ${env.JOB_NAME} with build number ${env.BUILD_NUMBER} has successfully completed.",
-                )
-            }
-        }
-        failure {
-            script {
-                emailext (
-                    to: 'mail@example.com',
-                    subject: "Pipeline Failed: ${env.JOB_NAME} ${env.BUILD_NUMBER}",
-                    body: "Sorry! Your pipeline ${env.STAGE_NAME} with build number ${env.BUILD_NUMBER} has failed. Please check the Jenkins console output for more details.",
-                )
-            }
-        }
-unstable {
+        always {
             emailext (
-                to: 'another_recipient@example.com',
+                to: 'amm@example.com',
+                subject: "Build ${currentBuild.fullDisplayName} ${currentBuild.result}",
+                body: "Build ${currentBuild.fullDisplayName} finished with result: ${currentBuild.result}artifacts have been archived successfully",
+            )
+        }
+        unstable {
+            emailext (
+                to: 'amm@example.com',
                 subject: "Build ${currentBuild.fullDisplayName} ${currentBuild.result}",
                 body: "Build ${currentBuild.fullDisplayName} finished with result: ${currentBuild.result}",
             )
- }
+        }
     }
 }
+
