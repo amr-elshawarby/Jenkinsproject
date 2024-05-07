@@ -12,21 +12,14 @@ pipeline {
                 script {
                     try {
                         echo 'Testing..'
-                        
                         sh 'exit 1'
                     } catch (Exception e) {
                         ansiColor('red') {
                             echo "Test failed"
-currentBuild.result = 'UNSTABLE'
+                            currentBuild.result = 'UNSTABLE'
                         }
-                        
                     }
                 }
-            }
-        }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying....'
             }
         }
     }
