@@ -15,8 +15,10 @@ pipeline {
                         
                         sh 'exit 1'
                     } catch (Exception e) {
+                        ansiColor('red') {
+                            echo "Test failed"
+                        }
                         
-                        echo "Test failed"
                         currentBuild.result = 'UNSTABLE'
                     }
                 }
