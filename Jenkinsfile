@@ -2,27 +2,21 @@ pipeline {
     agent any
 
     parameters {
-        choice(name: 'run_build', choices: ['yes', 'no'], description: 'Set to "yes" to run the pipeline, "no" to print an error message.')
+        booleanParam(name: 'confirmation', defaultValue: false, description: 'Set to true to confirm running the pipeline')
     }
 
     stages {
-        stage('Check Run Flag') {
+        stage('User Confirmation') {
             steps {
                 script {
-                    if (params.run_build == 'yes') {
-                        echo 'Pipeline will run.'
-                    } else {
-                        error 'Pipeline will not run. Set run_build parameter to "yes" to run the pipeline.'
+                    if (!params.confirmation) {
+                        error('Pipeline execution aborted. Please set "confirmation" parameter to true to confirm running the pipeline.')
                     }
                 }
             }
         }
+
         stage('Build and Test') {
-            when {
-                expression {
-                    params.run_build == 'yes'
-                }
-            }
             parallel {
                 stage('Build') {
                     steps {
@@ -39,48 +33,24 @@ pipeline {
         }
         
         stage('Deploy') {
-            when {
-                expression {
-                    params.run_build == 'yes'
-                }
-            }
             steps {
                 echo 'Deploying....'
-            }
-        }
-        
-        stage('Archive') {
-            when {
-                allOf {
-                    expression {
-                        params.run_build == 'yes'
-                    }
-                    expression {
-                        currentBuild.result == 'SUCCESS'
-                    }
-                }
-            }
-            steps {
-                archiveArtifacts artifacts: 'amr.txt', allowEmptyArchive: true
             }
         }
     }
     
     post {
-        always {
+        success {
             script {
-                if (params.run_build == 'yes') {
+                if (currentBuild.result == 'SUCCESS') {
+                    echo 'Archiving....'
+                    archiveArtifacts artifacts: 'amr.txt', allowEmptyArchive: true
                     emailext (
                         to: 'amm@example.com',
                         subject: "Build ${currentBuild.fullDisplayName} ${currentBuild.result}",
                         body: "Build ${currentBuild.fullDisplayName} finished with result: ${currentBuild.result}. Artifacts have been archived successfully."
                     )
-                }
-            }
-        }
-        unstable {
-            script {
-                if (params.run_build == 'yes') {
+                } else {
                     emailext (
                         to: 'amm@example.com',
                         subject: "Build ${currentBuild.fullDisplayName} ${currentBuild.result}",
@@ -88,6 +58,13 @@ pipeline {
                     )
                 }
             }
+        }
+        always {
+            emailext (
+                to: 'amm@example.com',
+                subject: "Build ${currentBuild.fullDisplayName} ${currentBuild.result}",
+                body: "Build ${currentBuild.fullDisplayName} finished with result: ${currentBuild.result}."
+            )
         }
     }
 }
