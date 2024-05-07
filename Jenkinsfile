@@ -17,9 +17,9 @@ pipeline {
                     } catch (Exception e) {
                         ansiColor('red') {
                             echo "Test failed"
+currentBuild.result = 'UNSTABLE'
                         }
                         
-                        currentBuild.result = 'UNSTABLE'
                     }
                 }
             }
