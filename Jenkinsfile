@@ -55,31 +55,30 @@ pipeline {
     }
     
     post {
-        success {
+        always {
             script {
-                if (currentBuild.result == 'SUCCESS') {
-                    echo 'Archiving....'
-                    archiveArtifacts artifacts: 'amr.txt', allowEmptyArchive: true
-                    emailext (
-                        to: 'amm@example.com',
-                        subject: "Build ${currentBuild.fullDisplayName} ${currentBuild.result}",
-                        body: "Build ${currentBuild.fullDisplayName} finished with result: ${currentBuild.result}. Artifacts have been archived successfully."
-                    )
-                } else {
-                    emailext (
-                        to: 'amm@example.com',
-                        subject: "Build ${currentBuild.fullDisplayName} ${currentBuild.result}",
-                        body: "Build ${currentBuild.fullDisplayName} finished with result: ${currentBuild.result}."
-                    )
+                if (params.confirmation == 'false') {
+                    echo 'Printing error message...'
+                    echo 'Pipeline execution aborted. User selected "false" to abort.'
+                }
+                else {
+                    if (currentBuild.result == 'SUCCESS') {
+                        echo 'Archiving....'
+                        archiveArtifacts artifacts: 'amr.txt', allowEmptyArchive: true
+                        emailext (
+                            to: 'amm@example.com',
+                            subject: "Build ${currentBuild.fullDisplayName} ${currentBuild.result}",
+                            body: "Build ${currentBuild.fullDisplayName} finished with result: ${currentBuild.result}. Artifacts have been archived successfully."
+                        )
+                    } else {
+                        emailext (
+                            to: 'amm@example.com',
+                            subject: "Build ${currentBuild.fullDisplayName} ${currentBuild.result}",
+                            body: "Build ${currentBuild.fullDisplayName} finished with result: ${currentBuild.result}."
+                        )
+                    }
                 }
             }
-        }
-        always {
-            emailext (
-                to: 'amm@example.com',
-                subject: "Build ${currentBuild.fullDisplayName} ${currentBuild.result}",
-                body: "Build ${currentBuild.fullDisplayName} finished with result: ${currentBuild.result}."
-            )
         }
     }
 }
