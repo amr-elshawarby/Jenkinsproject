@@ -21,7 +21,24 @@ pipeline {
                 }
             }
         }
-        stage('Archive') {
+        
+            
+                
+                    
+                
+           
+         
+                
+            
+        
+        stage('Deploy') {
+            steps {
+                echo 'Deploying....'
+                
+            }
+        }
+    }
+    stage('Archive') {
             when {
                 expression {
                     currentBuild.result == 'SUCCESS'
@@ -31,14 +48,6 @@ pipeline {
                 archiveArtifacts artifacts: 'amr.txt', allowEmptyArchive: true
             }
         }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying....'
-                
-            }
-        }
-    }
-    
     post {
         always {
             emailext (
