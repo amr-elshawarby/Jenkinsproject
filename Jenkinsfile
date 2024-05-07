@@ -5,7 +5,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building..'
-                // Add build steps here
+                
             }
         }
         stage('Test') {
@@ -13,19 +13,36 @@ pipeline {
                 script {
                     try {
                         echo 'Testing..'
-                        sh 'exit 1'
+                        sh 'exit 0' 
                     } catch (Exception e) {
                         ansiColor('red') {
                             echo "Test failed"
                             currentBuild.result = 'UNSTABLE'
+                            error "Test failed"
                         }
                     }
                 }
             }
         }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying..'
+    }
+    
+    post {
+        success {
+            script {
+                emailext (
+                    to: 'email@example.com',
+                    subject: "Pipeline Successful: ${env.JOB_NAME} ${env.BUILD_NUMBER}",
+                    body: "Congratulations! Your pipeline ${env.JOB_NAME} with build number ${env.BUILD_NUMBER} has successfully completed.",
+                )
+            }
+        }
+        failure {
+            script {
+                emailext (
+                    to: 'mail@example.com',
+                    subject: "Pipeline Failed: ${env.JOB_NAME} ${env.BUILD_NUMBER}",
+                    body: "Sorry! Your pipeline ${env.JOB_NAME} with build number ${env.BUILD_NUMBER} has failed. Please check the Jenkins console output for more details.",
+                )
             }
         }
     }
