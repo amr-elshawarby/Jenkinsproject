@@ -26,7 +26,8 @@ pipeline {
         
         stage('Archive') {
             when {
-                expression {
+                allOf {
+                    previousBuild().result == 'SUCCESS'
                     currentBuild.result == 'SUCCESS'
                 }
             }
