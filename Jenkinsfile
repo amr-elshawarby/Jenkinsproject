@@ -6,14 +6,25 @@ pipeline {
     }
 
     stages {
-        stage('User Confirmation') {
-            steps {
-                script {
-                    // Check if user selected "false" to abort the pipeline
-                    if (params.confirmation == 'false') {
-                        error('Pipeline execution aborted. User selected "false" to abort.')
-                    }
+        stage('Check Confirmation') {
+            when {
+                expression {
+                    params.confirmation == 'true'
                 }
+            }
+            steps {
+                echo 'Pipeline execution confirmed.'
+            }
+        }
+
+        stage('Error Message') {
+            when {
+                expression {
+                    params.confirmation == 'false'
+                }
+            }
+            steps {
+                error('Pipeline execution aborted. User selected "false" to abort.')
             }
         }
 
@@ -32,14 +43,14 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Deploy') {
             steps {
                 echo 'Deploying....'
             }
         }
     }
-    
+
     post {
         success {
             script {
