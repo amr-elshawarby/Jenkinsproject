@@ -16,7 +16,19 @@ pipeline {
             }
         }
         
+        stage('SCM Checkout') {
+            when {
+                expression { params.confirmation == 'true' }
+            }
+            steps {
+                checkout scm
+            }
+        }
+        
         stage('Build and Test') {
+            when {
+                expression { params.confirmation == 'true' }
+            }
             parallel {
                 stage('Build') {
                     steps {
@@ -33,6 +45,9 @@ pipeline {
         }
         
         stage('Deploy') {
+            when {
+                expression { params.confirmation == 'true' }
+            }
             steps {
                 echo 'Deploying....'
             }
