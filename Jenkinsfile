@@ -28,7 +28,7 @@ pipeline {
                 }
             }
             steps {
-                archiveArtifacts artifacts: 'hello.txt', allowEmptyArchive: true
+                archiveArtifacts artifacts: 'amr.txt', allowEmptyArchive: true
             }
         }
         stage('Deploy') {
