@@ -1,19 +1,16 @@
 pipeline {
     agent any
 
+    parameters {
+        choice(name: 'confirmation', choices: ['true', 'false'], description: 'Confirm whether to run the pipeline')
+    }
+
     stages {
         stage('User Confirmation') {
             steps {
                 script {
-                    
-                    def userInput = input(
-                        id: 'confirm',
-                        message: 'Do you want to run this pipeline? (Enter "true" to proceed or "false" to abort)',
-                        parameters: [booleanParam(defaultValue: false, description: 'Enter true to proceed or false to abort')]
-                    )
-
-                    
-                    if (!userInput) {
+                    // Check if user selected "false" to abort the pipeline
+                    if (params.confirmation == 'false') {
                         error('Pipeline execution aborted. User selected "false" to abort.')
                     }
                 }
