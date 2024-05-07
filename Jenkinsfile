@@ -5,6 +5,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building..'
+                // Add build steps here
             }
         }
         stage('Test') {
@@ -20,6 +21,11 @@ pipeline {
                         }
                     }
                 }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying..'
             }
         }
     }
