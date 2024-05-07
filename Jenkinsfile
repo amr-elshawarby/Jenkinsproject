@@ -1,5 +1,3 @@
-
-
 pipeline {
     agent any
 
@@ -11,7 +9,17 @@ pipeline {
         }
         stage('Test') {
             steps {
-                echo 'Testing..'
+                script {
+                    try {
+                        echo 'Testing..'
+                        
+                        sh 'exit 1'
+                    } catch (Exception e) {
+                        
+                        echo "Test failed"
+                        currentBuild.result = 'FAILURE'
+                    }
+                }
             }
         }
         stage('Deploy') {
@@ -21,3 +29,4 @@ pipeline {
         }
     }
 }
+
