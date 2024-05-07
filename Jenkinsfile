@@ -41,10 +41,16 @@ pipeline {
                 emailext (
                     to: 'mail@example.com',
                     subject: "Pipeline Failed: ${env.JOB_NAME} ${env.BUILD_NUMBER}",
-                    body: "Sorry! Your pipeline ${env.JOB_NAME} with build number ${env.BUILD_NUMBER} has failed. Please check the Jenkins console output for more details.",
+                    body: "Sorry! Your pipeline ${env.STAGE_NAME} with build number ${env.BUILD_NUMBER} has failed. Please check the Jenkins console output for more details.",
                 )
             }
         }
+unstable {
+            emailext (
+                to: 'another_recipient@example.com',
+                subject: "Build ${currentBuild.fullDisplayName} ${currentBuild.result}",
+                body: "Build ${currentBuild.fullDisplayName} finished with result: ${currentBuild.result}",
+            )
+ }
     }
 }
-
